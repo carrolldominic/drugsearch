@@ -50,4 +50,4 @@ app.get('/drug', async (req, res) => {
   }
 });
 
-app.listen(port, () => console.log(`DrugSearch listening on port ${port}`));
+module.exports = app;
