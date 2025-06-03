@@ -1,0 +1,14 @@
+{
+    "name": "drugsearch",
+    "version": "1.0.0",
+    "description": "Drug search application using Drugs@FDA API",
+    "main": "server.js",
+    "scripts": {
+      "start": "node server.js"
+    },
+    "dependencies": {
+      "express": "^4.21.0",
+      "express-handlebars": "^7.1.2",
+      "node-fetch": "^2.7.0"
+    }
+  }

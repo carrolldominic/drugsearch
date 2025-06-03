@@ -1,0 +1,8 @@
+<h1>DrugSearch</h1>
+<form id="searchForm">
+  <input type="text" id="drugName" name="name" placeholder="Enter drug name" required>
+  <button type="submit">Search</button>
+</form>
+{{#if error}}
+  <p class="error">{{error}}</p>
+{{/if}}

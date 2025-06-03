@@ -1,0 +1,12 @@
+<h1>{{drug.brandName}}</h1>
+<div class="drug-info">
+  <p><strong>Generic Name:</strong> {{drug.genericName}}</p>
+  <p><strong>Manufacturer:</strong> {{drug.manufacturer}}</p>
+  <p><strong>Indications:</strong> {{drug.indications}}</p>
+  {{#if drug.pdfLink}}
+    <a href="{{drug.pdfLink}}" target="_blank" class="pdf-button">View Prescribing Information (PDF)</a>
+  {{else}}
+    <p>No prescribing information PDF available</p>
+  {{/if}}
+</div>
+<a href="/">Back to Search</a>
