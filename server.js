@@ -29,7 +29,7 @@ app.get('/drug', async (req, res) => {
   try {
     const searchTerm = `${encodeURIComponent(drugName)}*`;
     const response = await fetch(
-      `https://api.fda.gov/drug/label.json?search=openfda.brand_name:${searchTerm}+openfda.generic_name:${searchTerm}&limit=10`
+      `https://api.fda.gov/drug/label.json?search=openfda.brand_name:${searchTerm}+openfda.generic_name:${searchTerm}&limit=20`
     );
     const data = await response.json();
 
