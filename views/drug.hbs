@@ -21,7 +21,7 @@
                   {{#if pubchem.error}}
                     <p class="text-danger">{{pubchem.error}}</p>
                   {{else}}
-                    <ul class="list-group list-group-flush mb-3">
+                    <ul class="list-group list-group-flush mb-3"  id="medChemList">
                       <li class="list-group-item"><strong>Molecular Weight:</strong> {{pubchem.molecularWeight}}</li>
                       <li class="list-group-item"><strong>Log P:</strong> {{pubchem.logP}}</li>
                       <li class="list-group-item"><strong>Hydrogen Bond Donors:</strong> {{pubchem.hydrogenBondDonors}}</li>
@@ -58,3 +58,66 @@
     <a href="/" class="btn btn-secondary mt-3">Back to Search</a>
   </div>
 </div>
+
+
+
+<script>
+$(document).ready(function () {
+  $('.drug').each(function () {
+    const $drugCard = $(this);
+
+    try {
+      const getFloat = (label) => {
+        const item = $drugCard.find(`.list-group-item:contains("${label}")`).text();
+        return parseFloat(item.split(':')[1]) || 0;
+      };
+
+      const getInt = (label) => {
+        const item = $drugCard.find(`.list-group-item:contains("${label}")`).text();
+        return parseInt(item.split(':')[1]) || 0;
+      };
+
+      const mw  = getFloat("Molecular Weight");
+      const logP = getFloat("Log P");
+      const hbd = getInt("Hydrogen Bond Donors");
+      const hba = getInt("Hydrogen Bond Acceptors");
+      const rb  = getInt("Rotatable Bonds");
+
+      const results = [];
+
+      // Lipinski's Rule of 5
+      if (mw <= 500 && logP <= 5 && hbd <= 5 && hba <= 10) {
+        results.push(`
+          <a href="https://en.wikipedia.org/wiki/Lipinski%27s_rule_of_five" target="_blank" class="badge bg-success me-1 text-decoration-none">
+            <i class="bi bi-check-circle-fill me-1"></i>Lipinski
+          </a>`);
+      }
+
+      // Veber Rule
+      if (rb <= 10 && (hbd + hba) <= 12) {
+        results.push(`
+          <a href="https://www.wisdomlib.org/concept/vebers-rule" target="_blank" class="badge bg-info text-dark me-1 text-decoration-none">
+            <i class="bi bi-check-circle-fill me-1"></i>Veber
+          </a>`);
+      }
+
+      // Rule of 3
+      if (mw <= 300 && logP <= 3 && hbd <= 3 && hba <= 3) {
+        results.push(`
+          <a href="https://www.mdpi.com/2673-8392/3/2/35" target="_blank" class="badge bg-warning text-dark me-1 text-decoration-none">
+            <i class="bi bi-check-circle-fill me-1"></i>Rule of 3
+          </a>`);
+      }
+
+      if (results.length > 0) {
+        const badgeBlock = $(`<div class="mt-2">${results.join(' ')}</div>`);
+        $drugCard.find('#medChemList').before(badgeBlock);
+      }
+
+    } catch (e) {
+      console.warn("Error evaluating med chem rules:", e);
+    }
+  });
+});
+</script>
+
