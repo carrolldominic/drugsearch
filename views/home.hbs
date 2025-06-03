@@ -1,8 +1,12 @@
-<h1>DrugSearch</h1>
-<form id="searchForm">
-  <input type="text" id="drugName" name="name" placeholder="Enter drug name" required>
-  <button type="submit">Search</button>
-</form>
-{{#if error}}
-  <p class="error">{{error}}</p>
-{{/if}}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <h1 class="text-center mb-4">An easier way to browse drug labels.</h1>
+    <form id="searchForm" class="d-flex mb-3">
+      <input type="text" id="drugName" name="name" class="form-control me-2" placeholder="Enter drug name" required>
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+    {{#if error}}
+      <div class="alert alert-danger" role="alert">{{error}}</div>
+    {{/if}}
+  </div>
+</div>

@@ -1,12 +1,28 @@
-<h1>{{drug.brandName}}</h1>
-<div class="drug-info">
-  <p><strong>Generic Name:</strong> {{drug.genericName}}</p>
-  <p><strong>Manufacturer:</strong> {{drug.manufacturer}}</p>
-  <p><strong>Indications:</strong> {{drug.indications}}</p>
-  {{#if drug.pdfLink}}
-    <a href="{{drug.pdfLink}}" target="_blank" class="pdf-button">View Prescribing Information (PDF)</a>
-  {{else}}
-    <p>No prescribing information PDF available</p>
-  {{/if}}
+<div class="row">
+  <div class="col-12">
+    <h1 class="text-center mb-4">Search Results for "{{searchTerm}}"</h1>
+    {{#if drugs}}
+      <div class="drug-list">
+        {{#each drugs}}
+          <div class="card mb-3">
+            <div class="card-body">
+              <h2 class="card-title">{{this.brandName}}</h2>
+              <p class="card-text"><strong>Generic Name:</strong> {{this.genericName}}</p>
+              <p class="card-text"><strong>Mechanism of Action:</strong> {{this.moa}}</p>
+              <p class="card-text"><strong>Manufacturer:</strong> {{this.manufacturer}}</p>
+              <p class="card-text"><strong>Indications:</strong> {{this.indications}}</p>
+              {{#if this.pdfLink}}
+                <a href="{{this.pdfLink}}" target="_blank" class="btn btn-success">View Prescribing Information (PDF)</a>
+              {{else}}
+                <p class="card-text text-muted">No prescribing information PDF available</p>
+              {{/if}}
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    {{else}}
+      <div class="alert alert-warning" role="alert">No drugs found for "{{searchTerm}}"</div>
+    {{/if}}
+    <a href="/" class="btn btn-secondary mt-3">Back to Search</a>
+  </div>
 </div>
-<a href="/">Back to Search</a>
