@@ -42,6 +42,7 @@ app.get('/drug', async (req, res) => {
         const drugInfo = {
           brandName: drug.openfda?.brand_name?.[0] || 'N/A',
           genericName: drug.openfda?.generic_name?.[0] || 'N/A',
+          ingredient: drug.openfda?.unii?.[0] || 'N/A',
           moa: drug.openfda?.pharm_class_moa?.[0] || 'N/A',
           manufacturer: drug.openfda?.manufacturer_name?.[0] || 'N/A',
           indications: drug.indications_and_usage?.[0] || 'N/A',
@@ -56,7 +57,7 @@ app.get('/drug', async (req, res) => {
         if (drugInfo.genericName !== 'N/A') {
           try {
             const pubchemResponse = await fetch(
-              `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(drugInfo.genericName)}/JSON`
+              `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(drugInfo.ingredient)}/JSON`
             );
             if (pubchemResponse.ok) {
               const pubchemData = await pubchemResponse.json();
