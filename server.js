@@ -20,6 +20,10 @@ app.get('/', (req, res) => {
   res.render('home');
 });
 
+app.get('/about', (req, res) => {
+  res.render('about');
+});
+
 app.get('/drug', async (req, res) => {
   const drugName = req.query.name;
   if (!drugName) {
