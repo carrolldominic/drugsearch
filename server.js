@@ -13,8 +13,8 @@ const hbs = create({
 
 app.engine('.hbs', hbs.engine);
 app.set('view engine', '.hbs');
-app.set('views', path.join(__dirname, 'views')); // Explicitly set views directory
-app.use(express.static(path.join(__dirname, 'public'))); // Explicitly set public directory
+app.set('views', path.join(__dirname, 'views')); 
+app.use(express.static(path.join(__dirname, 'public'))); 
 
 app.get('/', (req, res) => {
   res.render('home');
@@ -32,20 +32,66 @@ app.get('/drug', async (req, res) => {
 
   try {
     const searchTerm = `${encodeURIComponent(drugName)}*`;
-    const response = await fetch(
+    const fdaResponse = await fetch(
       `https://api.fda.gov/drug/label.json?search=openfda.brand_name:${searchTerm}+openfda.generic_name:${searchTerm}&limit=20`
     );
-    const data = await response.json();
+    const fdaData = await fdaResponse.json();
 
-    if (data.results && data.results.length > 0) {
-      const drugs = data.results.map(drug => ({
-        brandName: drug.openfda?.brand_name?.[0] || 'N/A',
-        genericName: drug.openfda?.generic_name?.[0] || 'N/A',
-        moa: drug.openfda?.pharm_class_moa?.[0] || 'N/A',
-        manufacturer: drug.openfda?.manufacturer_name?.[0] || 'N/A',
-        indications: drug.indications_and_usage?.[0] || 'N/A',
-        pdfLink: drug.openfda?.spl_set_id?.[0] ? `https://nctr-crs.fda.gov/fdalabel/services/spl/set-ids/${drug.openfda.spl_set_id[0]}/spl-doc` : ''
+    if (fdaData.results && fdaData.results.length > 0) {
+      const drugs = await Promise.all(fdaData.results.map(async (drug) => {
+        const drugInfo = {
+          brandName: drug.openfda?.brand_name?.[0] || 'N/A',
+          genericName: drug.openfda?.generic_name?.[0] || 'N/A',
+          moa: drug.openfda?.pharm_class_moa?.[0] || 'N/A',
+          manufacturer: drug.openfda?.manufacturer_name?.[0] || 'N/A',
+          indications: drug.indications_and_usage?.[0] || 'N/A',
+          labelLink: drug.openfda?.spl_set_id?.[0] ? 
+            `https://nctr-crs.fda.gov/fdalabel/services/spl/set-ids/${drug.openfda.spl_set_id[0]}/spl-doc` : '',
+          pdfLink: drug.openfda?.spl_set_id?.[0] ? 
+            `https://dailymed.nlm.nih.gov/dailymed/downloadpdffile.cfm?setId=${drug.openfda.spl_set_id[0]}` : '',
+          pubchem: {} // Initialize pubchem data object
+        };
+
+        // Fetch PubChem data using generic name
+        if (drugInfo.genericName !== 'N/A') {
+          try {
+            const pubchemResponse = await fetch(
+              `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(drugInfo.genericName)}/JSON`
+            );
+            if (pubchemResponse.ok) {
+              const pubchemData = await pubchemResponse.json();
+              const props = pubchemData.PC_Compounds?.[0]?.props || [];
+              const cid = pubchemData.PC_Compounds?.[0]?.id?.id?.cid || null;
+
+              // Log available Log P properties for debugging
+              const logPProps = props.filter(prop => prop.urn.label === 'Log P');
+              if (logPProps.length === 0) {
+                console.warn(`No Log P property found for ${drugInfo.genericName}`);
+              } else {
+                console.log(`Log P properties for ${drugInfo.genericName}:`, logPProps.map(p => ({ name: p.urn.name, value: p.value.fval })));
+              }
+
+              drugInfo.pubchem = {
+                molecularWeight: props.find(prop => prop.urn.label === 'Molecular Weight')?.value?.sval || 'N/A',
+                logP: props.find(prop => prop.urn.label === 'Log P')?.value?.fval || 'N/A',
+                hydrogenBondDonors: props.find(prop => prop.urn.label === 'Count' && prop.urn.name === 'Hydrogen Bond Donor')?.value?.ival || 'N/A',
+                hydrogenBondAcceptors: props.find(prop => prop.urn.label === 'Count' && prop.urn.name === 'Hydrogen Bond Acceptor')?.value?.ival || 'N/A',
+                rotatableBonds: props.find(prop => prop.urn.label === 'Count' && prop.urn.name === 'Rotatable Bond')?.value?.ival || 'N/A',
+                imageUrl: cid ? `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/PNG?record_type=2d&image_size=large` : 'N/A'
+              };
+            } else {
+              console.error(`PubChem API error for ${drugInfo.genericName}: Status ${pubchemResponse.status}`);
+              drugInfo.pubchem = { error: 'Unable to fetch PubChem data' };
+            }
+          } catch (pubchemError) {
+            console.error(`Error fetching PubChem data for ${drugInfo.genericName}:`, pubchemError);
+            drugInfo.pubchem = { error: 'Unable to fetch PubChem data' };
+          }
+        }
+
+        return drugInfo;
       }));
+
       res.render('drug', { drugs, searchTerm: drugName });
     } else {
       res.render('home', { error: 'No drugs found' });
