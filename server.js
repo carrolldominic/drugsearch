@@ -1,18 +1,20 @@
 const express = require('express');
 const { create } = require('express-handlebars');
 const fetch = require('node-fetch');
-const app = express();
-const port = 3000;
+const path = require('path');
 
-// Configure Handlebars with create()
+const app = express();
+
+// Configure Handlebars
 const hbs = create({
   extname: '.hbs',
-  defaultLayout: 'main'
+  defaultLayout: 'main',
 });
 
 app.engine('.hbs', hbs.engine);
 app.set('view engine', '.hbs');
-app.use(express.static('public'));
+app.set('views', path.join(__dirname, 'views')); // Explicitly set views directory
+app.use(express.static(path.join(__dirname, 'public'))); // Explicitly set public directory
 
 app.get('/', (req, res) => {
   res.render('home');
@@ -25,7 +27,6 @@ app.get('/drug', async (req, res) => {
   }
 
   try {
-    // Search both brand_name and generic_name with partial match
     const searchTerm = `${encodeURIComponent(drugName)}*`;
     const response = await fetch(
       `https://api.fda.gov/drug/label.json?search=openfda.brand_name:${searchTerm}+openfda.generic_name:${searchTerm}&limit=10`
@@ -46,8 +47,16 @@ app.get('/drug', async (req, res) => {
       res.render('home', { error: 'No drugs found' });
     }
   } catch (error) {
+    console.error('Error fetching drug info:', error);
     res.render('home', { error: 'Error fetching drug information' });
   }
 });
 
+// Export for Vercel
 module.exports = app;
+
+// Run locally if not in serverless
+if (require.main === module) {
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => console.log(`DrugSearch listening on port ${port}`));
+}
