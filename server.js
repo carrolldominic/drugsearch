@@ -82,11 +82,11 @@ app.get('/drug', async (req, res) => {
               };
             } else {
               console.error(`PubChem API error for ${drugInfo.genericName}: Status ${pubchemResponse.status}`);
-              drugInfo.pubchem = { error: 'Unable to fetch PubChem data' };
+              drugInfo.pubchem = { error: 'Unable to fetch chemistry data' };
             }
           } catch (pubchemError) {
             console.error(`Error fetching PubChem data for ${drugInfo.genericName}:`, pubchemError);
-            drugInfo.pubchem = { error: 'Unable to fetch PubChem data' };
+            drugInfo.pubchem = { error: 'Unable to fetch chemistry data' };
           }
         }
 

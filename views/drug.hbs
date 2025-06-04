@@ -16,26 +16,27 @@
                   <p class="card-text"><strong>Indications:</strong> {{indications}}</p>
                 </div>
                 <!-- Medicinal Chemistry Data Column -->
-                <div class="col">
-                  <p class="card-text"><strong>Medicinal Chemistry Data:</strong></p>
+
                   {{#if pubchem.error}}
                     <p class="text-danger">{{pubchem.error}}</p>
                   {{else}}
-                    <ul class="list-group list-group-flush mb-3"  id="medChemList">
-                      <li class="list-group-item"><strong>Molecular Weight:</strong> {{pubchem.molecularWeight}}</li>
-                      <li class="list-group-item"><strong>Log P:</strong> {{pubchem.logP}}</li>
-                      <li class="list-group-item"><strong>Hydrogen Bond Donors:</strong> {{pubchem.hydrogenBondDonors}}</li>
-                      <li class="list-group-item"><strong>Hydrogen Bond Acceptors:</strong> {{pubchem.hydrogenBondAcceptors}}</li>
-                      <li class="list-group-item"><strong>Rotatable Bonds:</strong> {{pubchem.rotatableBonds}}</li>
-                    </ul>
-                     {{#if pubchem.imageUrl}}
-                      <p><strong>Molecular Structure:</strong></p>
-                      <img src="{{pubchem.imageUrl}}" alt="Molecular structure of {{genericName}}" style="max-width: 300px;">
-                    {{else}}
-                      <p>No molecular structure image available</p>
-                    {{/if}}
-                  {{/if}}
-                </div>
+                      <div class="col">
+                        <p class="card-text"><strong>Medicinal Chemistry Data:</strong></p>
+                          <ul class="list-group list-group-flush mb-3"  id="medChemList">
+                            <li class="list-group-item"><strong>Molecular Weight:</strong> {{pubchem.molecularWeight}}</li>
+                            <li class="list-group-item"><strong>Log P:</strong> {{pubchem.logP}}</li>
+                            <li class="list-group-item"><strong>Hydrogen Bond Donors:</strong> {{pubchem.hydrogenBondDonors}}</li>
+                            <li class="list-group-item"><strong>Hydrogen Bond Acceptors:</strong> {{pubchem.hydrogenBondAcceptors}}</li>
+                            <li class="list-group-item"><strong>Rotatable Bonds:</strong> {{pubchem.rotatableBonds}}</li>
+                          </ul>
+                          {{#if pubchem.imageUrl}}
+                            <p><strong>Molecular Structure:</strong></p>
+                            <img src="{{pubchem.imageUrl}}" alt="Molecular structure of {{genericName}}" style="max-width: 300px;">
+                          {{else}}
+                            <p>No molecular structure image available</p>
+                          {{/if}}
+                      </div>
+                   {{/if}}
               </div>
               <div class="d-flex gap-2 mt-3">
                 {{#if labelLink}}
