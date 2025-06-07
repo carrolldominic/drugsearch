@@ -126,7 +126,7 @@ app.get('/literature', async (req, res) => {
 
   try {
     const searchTerm = encodeURIComponent(drugName);
-    const searchUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${searchTerm}&retmax=20&retmode=json`;
+    const searchUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${searchTerm}&retmax=50&retmode=json`;
     const searchResponse = await fetch(searchUrl);
     const searchData = await searchResponse.json();
 
