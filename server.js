@@ -2,6 +2,7 @@ const express = require('express');
 const { create } = require('express-handlebars');
 const fetch = require('node-fetch');
 const path = require('path');
+const ExcelJS = require('exceljs');
 
 const app = express();
 
@@ -16,18 +17,22 @@ app.set('view engine', '.hbs');
 app.set('views', path.join(__dirname, 'views')); 
 app.use(express.static(path.join(__dirname, 'public'))); 
 
+// Home Route
 app.get('/', (req, res) => {
-  res.render('home');
+  res.render('home', {
+    title: 'Drug and Literature Search',
+    error: null
+  });
 });
 
-app.get('/about', (req, res) => {
-  res.render('about');
-});
-
+// Drug Route
 app.get('/drug', async (req, res) => {
   const drugName = req.query.name;
   if (!drugName) {
-    return res.render('home', { error: 'Please enter a drug name' });
+    return res.render('home', {
+      title: 'Drug and Literature Search',
+      error: 'Please enter a drug name'
+    });
   }
 
   try {
@@ -50,10 +55,9 @@ app.get('/drug', async (req, res) => {
             `https://nctr-crs.fda.gov/fdalabel/services/spl/set-ids/${drug.openfda.spl_set_id[0]}/spl-doc` : '',
           pdfLink: drug.openfda?.spl_set_id?.[0] ? 
             `https://dailymed.nlm.nih.gov/dailymed/downloadpdffile.cfm?setId=${drug.openfda.spl_set_id[0]}` : '',
-          pubchem: {} // Initialize pubchem data object
+          pubchem: {}
         };
 
-        // Fetch PubChem data using generic name
         if (drugInfo.genericName !== 'N/A') {
           try {
             const pubchemResponse = await fetch(
@@ -64,14 +68,6 @@ app.get('/drug', async (req, res) => {
               const props = pubchemData.PC_Compounds?.[0]?.props || [];
               const cid = pubchemData.PC_Compounds?.[0]?.id?.id?.cid || null;
 
-              // Log available Log P properties for debugging
-              const logPProps = props.filter(prop => prop.urn.label === 'Log P');
-              if (logPProps.length === 0) {
-                console.warn(`No Log P property found for ${drugInfo.genericName}`);
-              } else {
-                console.log(`Log P properties for ${drugInfo.genericName}:`, logPProps.map(p => ({ name: p.urn.name, value: p.value.fval })));
-              }
-
               drugInfo.pubchem = {
                 molecularWeight: props.find(prop => prop.urn.label === 'Molecular Weight')?.value?.sval || 'N/A',
                 logP: props.find(prop => prop.urn.label === 'Log P')?.value?.fval || 'N/A',
@@ -81,11 +77,9 @@ app.get('/drug', async (req, res) => {
                 imageUrl: cid ? `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/PNG?record_type=2d&image_size=large` : 'N/A'
               };
             } else {
-              console.error(`PubChem API error for ${drugInfo.genericName}: Status ${pubchemResponse.status}`);
               drugInfo.pubchem = { error: 'Unable to fetch chemistry data' };
             }
           } catch (pubchemError) {
-            console.error(`Error fetching PubChem data for ${drugInfo.genericName}:`, pubchemError);
             drugInfo.pubchem = { error: 'Unable to fetch chemistry data' };
           }
         }
@@ -93,24 +87,34 @@ app.get('/drug', async (req, res) => {
         return drugInfo;
       }));
 
-      res.render('drug', { drugs, searchTerm: drugName });
+      res.render('drug', {
+        title: `Drug Results for ${drugName}`,
+        drugs,
+        searchTerm: drugName
+      });
     } else {
-      res.render('home', { error: 'No drugs found' });
+      res.render('home', {
+        title: 'Drug and Literature Search',
+        error: 'No drugs found'
+      });
     }
   } catch (error) {
     console.error('Error fetching drug info:', error);
-    res.render('home', { error: 'Error fetching drug information' });
+    res.render('home', {
+      title: 'Drug and Literature Search',
+      error: 'Error fetching drug information'
+    });
   }
 });
 
-
-
-const ExcelJS = require('exceljs');
-
+// Literature Route
 app.get('/literature', async (req, res) => {
   const drugName = req.query.name;
   if (!drugName) {
-    return res.render('home', { error: 'Please enter a drug name' });
+    return res.render('home', {
+      title: 'Drug and Literature Search',
+      error: 'Please enter a drug name'
+    });
   }
 
   try {
@@ -120,7 +124,12 @@ app.get('/literature', async (req, res) => {
     const searchData = await searchResponse.json();
 
     if (!searchData.esearchresult || !searchData.esearchresult.idlist || searchData.esearchresult.idlist.length === 0) {
-      return res.render('literature', { searchTerm: drugName, articles: [], error: 'No articles found' });
+      return res.render('literature', {
+        title: `Literature Results for ${drugName}`,
+        searchTerm: drugName,
+        articles: [],
+        error: 'No articles found'
+      });
     }
 
     const pmids = searchData.esearchresult.idlist.join(',');
@@ -140,13 +149,23 @@ app.get('/literature', async (req, res) => {
         link: `https://pubmed.ncbi.nlm.nih.gov/${article.uid}/`
       }));
 
-    res.render('literature', { searchTerm: drugName, articles });
+    res.render('literature', {
+      title: `Literature Results for ${drugName}`,
+      searchTerm: drugName,
+      articles
+    });
   } catch (error) {
     console.error('Error fetching PubMed data:', error);
-    res.render('literature', { searchTerm: drugName, articles: [], error: 'Error fetching literature data' });
+    res.render('literature', {
+      title: `Literature Results for ${drugName}`,
+      searchTerm: drugName,
+      articles: [],
+      error: 'Error fetching literature data'
+    });
   }
 });
 
+// Literature Download Route
 app.get('/literature/download', async (req, res) => {
   const drugName = req.query.name;
   if (!drugName) {
@@ -180,11 +199,9 @@ app.get('/literature/download', async (req, res) => {
         link: `https://pubmed.ncbi.nlm.nih.gov/${article.uid}/`
       }));
 
-    // Create Excel workbook
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('PubMed Articles');
 
-    // Define columns
     worksheet.columns = [
       { header: 'Title', key: 'title', width: 50 },
       { header: 'Authors', key: 'authors', width: 30 },
@@ -195,7 +212,6 @@ app.get('/literature/download', async (req, res) => {
       { header: 'PubMed Link', key: 'link', width: 30 }
     ];
 
-    // Style header row
     worksheet.getRow(1).font = { bold: true };
     worksheet.getRow(1).fill = {
       type: 'pattern',
@@ -204,16 +220,13 @@ app.get('/literature/download', async (req, res) => {
     };
     worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
 
-    // Add article data
     articles.forEach(article => {
       worksheet.addRow(article);
     });
 
-    // Set response headers for Excel download
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename="PubMed_${drugName}_Articles.xlsx"`);
 
-    // Write workbook to response
     await workbook.xlsx.write(res);
     res.end();
   } catch (error) {
@@ -222,12 +235,9 @@ app.get('/literature/download', async (req, res) => {
   }
 });
 
-
-
 // Export for Vercel
 module.exports = app;
 
-// Run locally if not in serverless
 if (require.main === module) {
   const port = process.env.PORT || 3000;
   app.listen(port, () => console.log(`DrugSearch listening on port ${port}`));
