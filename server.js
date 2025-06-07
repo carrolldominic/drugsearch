@@ -20,14 +20,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Home Route
 app.get('/', (req, res) => {
   res.render('home', {
-    title: 'Drug and Literature Search',
+    title: 'PharmExplore - Drug and Literature Search',
     error: null
   });
 });
 
 app.get('/about', (req, res) => {
   res.render('about', {
-    title: 'About DrugSearch - speed up your pharma diligence',
+    title: 'About PharmExplore - speed up your pharma diligence',
     error: null
   });
 });
