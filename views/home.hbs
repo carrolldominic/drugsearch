@@ -1,10 +1,19 @@
 <div class="row justify-content-center">
   <div class="col-md-8">
-    <h1 class="text-center mb-4">An easier way to browse drug labels.</h1>
-    <form id="searchForm" class="d-flex mb-3">
-      <input type="text" id="drugName" name="name" class="form-control me-2" placeholder="Enter drug name" required>
-      <button type="submit" class="btn btn-primary">Search</button>
+    <h1 class="text-center mb-4">Speed up your biopharma diligence.</h1>
+    
+    <h3 class="text-center mb-3">Search Drug Labels</h3>
+    <form id="drugSearchForm" action="/drug" method="GET" class="d-flex mb-4">
+      <input type="text" id="drugName" name="name" class="form-control me-2" placeholder="Enter drug name (e.g., ibuprofen)" required>
+      <button type="submit" class="btn btn-primary">Search Drugs</button>
     </form>
+    
+    <h3 class="text-center mb-3">Search Medical Literature</h3>
+    <form id="literatureSearchForm" action="/literature" method="GET" class="d-flex mb-4">
+      <input type="text" id="literatureName" name="name" class="form-control me-2" placeholder="Enter search term (e.g., breast cancer treatment paradigm)" required>
+      <button type="submit" class="btn btn-primary">Search Literature</button>
+    </form>
+    
     {{#if error}}
       <div class="alert alert-danger" role="alert">{{error}}</div>
     {{/if}}
