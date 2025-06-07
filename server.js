@@ -25,6 +25,13 @@ app.get('/', (req, res) => {
   });
 });
 
+app.get('/about', (req, res) => {
+  res.render('about', {
+    title: 'About DrugSearch - speed up your pharma diligence',
+    error: null
+  });
+});
+
 // Drug Route
 app.get('/drug', async (req, res) => {
   const drugName = req.query.name;
