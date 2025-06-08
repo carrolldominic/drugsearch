@@ -17,8 +17,10 @@ router.get('/', async (req, res) => {
     // Build the API URL for the new v2 API
     // Example: https://clinicaltrials.gov/api/v2/studies?query=ibrance&fields=NCTId,BriefTitle,Condition,Phase,StartDate,Status,LocationCity,LocationCountry,Interventions,StudyType,EnrollmentCount,LeadSponsorName,LastUpdatePostDate,URL&limit=20
     // Do not encodeURIComponent for query.cond, just use the raw string
+    // Use query.term for partial matches (full text search) instead of query.cond
+    // This allows for partial and broader matches
     const searchTerm = drugName;
-    const apiUrl = `https://clinicaltrials.gov/api/v2/studies?query.cond=${searchTerm}&pageSize=50`;
+    const apiUrl = `https://clinicaltrials.gov/api/v2/studies?query.term=${encodeURIComponent(searchTerm)}&pageSize=50`;
     const response = await fetch(apiUrl);
     let data;
     try {

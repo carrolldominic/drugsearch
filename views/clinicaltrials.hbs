@@ -44,8 +44,9 @@
                   {{#if studyType}}<span class="badge bg-primary me-2">{{studyType}}</span>{{/if}}
                   {{#if phases}}<span class="badge bg-warning text-dark me-2">Phase: {{phases}}</span>{{/if}}
                 </div>
-                <div class="d-flex mb-2">
+                <div class="d-flex mb-2 gap-2">
                   <a href="https://clinicaltrials.gov/study/{{nctId}}" target="_blank" class="btn btn-outline-primary btn-sm">View on ClinicalTrials.gov <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M6.364 13.657a.5.5 0 0 1 0-.707l6.647-6.647H9.5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V4.707l-6.647 6.647a.5.5 0 0 1-.707-.707l6.647-6.647H9.5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V4.707l-6.647 6.647a.5.5 0 0 1-.707-.707z"/></svg></a>
+                  <a href="https://pubmed.ncbi.nlm.nih.gov/?term={{nctId}}" target="_blank" class="btn btn-outline-success btn-sm">View on PubMed <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16"><path d="M11 6a5 5 0 1 1-2-9.9A5 5 0 0 1 11 6zm-1 0A4 4 0 1 0 6 2a4 4 0 0 0 4 4zm6.854 10.146a.5.5 0 0 1-.708 0l-3.182-3.182A6.978 6.978 0 0 1 6 13a7 7 0 1 1 7-7c0 1.61-.537 3.098-1.464 4.293l3.182 3.182a.5.5 0 0 1 0 .708z"/></svg></a>
                 </div>
                 <p class="mb-1"><strong>Condition(s):</strong> {{condition}}</p>
                 <p class="mb-1"><strong>Enrollment:</strong> {{enrollment}}</p>
