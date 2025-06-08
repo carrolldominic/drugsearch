@@ -1,0 +1,176 @@
+<div class="row">
+  <div class="col-12">
+    <h3 class="text-center mb-5 fw-bold text-primary">Clinical Trials for "{{searchTerm}}"</h3>
+    <div class="text-center mb-3">
+      <a href="https://clinicaltrials.gov/search?intr={{searchTerm}}" target="_blank" class="btn btn-link">View all results for "{{searchTerm}}" on ClinicalTrials.gov</a>
+    </div>
+    <div class="row mb-4">
+      <div class="col-12">
+        <form id="trial-filters" class="row g-2 align-items-end justify-content-center">
+          <div class="col-12 col-md-3">
+            <label for="statusFilter" class="form-label mb-0">Status</label>
+            <select id="statusFilter" class="form-select">
+              <option value="">All</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-3">
+            <label for="phaseFilter" class="form-label mb-0">Phase</label>
+            <select id="phaseFilter" class="form-select">
+              <option value="">All</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-3">
+            <label for="sortBy" class="form-label mb-0">Sort by</label>
+            <select id="sortBy" class="form-select">
+              <option value="startDate">Start Date</option>
+              <option value="completionDate">Completion Date</option>
+              <option value="enrollment">Enrollment</option>
+            </select>
+          </div>
+        </form>
+      </div>
+    </div>
+    {{#if trials.length}}
+      <div class="row g-4 justify-content-center" id="trialsGrid">
+        {{#each trials}}
+          <div class="col-12 col-md-6 col-lg-4 d-flex align-items-stretch trial-card" 
+               data-status="{{status}}" data-phase="{{phases}}" data-startdate="{{startDate}}" data-completiondate="{{completionDate}}" data-enrollment="{{enrollment}}">
+            <div class="card shadow-sm mb-4 w-100" style="border-radius: 12px; max-height: 600px; display: flex; flex-direction: column;">
+              <div class="card-body overflow-auto" style="flex: 1 1 auto; min-height: 0;">
+                <h4 class="card-title mb-2 text-info">{{title}}</h4>
+                <div class="mb-2">
+                  <span class="badge bg-secondary me-2">NCT: {{nctId}}</span>
+                  {{#if status}}<span class="badge bg-success me-2">Status: {{status}}</span>{{/if}}
+                  {{#if studyType}}<span class="badge bg-primary me-2">{{studyType}}</span>{{/if}}
+                  {{#if phases}}<span class="badge bg-warning text-dark me-2">Phase: {{phases}}</span>{{/if}}
+                </div>
+                <div class="d-flex mb-2">
+                  <a href="https://clinicaltrials.gov/study/{{nctId}}" target="_blank" class="btn btn-outline-primary btn-sm">View on ClinicalTrials.gov <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M6.364 13.657a.5.5 0 0 1 0-.707l6.647-6.647H9.5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V4.707l-6.647 6.647a.5.5 0 0 1-.707-.707l6.647-6.647H9.5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V4.707l-6.647 6.647a.5.5 0 0 1-.707-.707z"/></svg></a>
+                </div>
+                <p class="mb-1"><strong>Condition(s):</strong> {{condition}}</p>
+                <p class="mb-1"><strong>Enrollment:</strong> {{enrollment}}</p>
+                <p class="mb-1"><strong>Start Date:</strong> {{startDate}}</p>
+                <p class="mb-1"><strong>Primary Completion Date:</strong> {{primaryCompletionDate}}</p>
+                <p class="mb-1"><strong>Completion Date:</strong> {{completionDate}}</p>
+                <p class="mb-1"><strong>Summary:</strong> {{briefSummary}}</p>
+                <p class="mb-1"><strong>Detailed Description:</strong> {{detailedDescription}}</p>
+                {{#if arms.length}}
+                  <p class="mb-1"><strong>Arms/Groups:</strong></p>
+                  <ul>
+                    {{#each arms}}
+                      <li><strong>{{label}}</strong> ({{type}}): {{description}}<br><em>Interventions:</em> {{interventionNames}}</li>
+                    {{/each}}
+                  </ul>
+                {{/if}}
+                {{#if primaryOutcomes.length}}
+                  <p class="mb-1"><strong>Primary Endpoints:</strong></p>
+                  <ul>
+                    {{#each primaryOutcomes}}
+                      <li><strong>{{measure}}</strong>: {{description}} <em>({{timeFrame}})</em></li>
+                    {{/each}}
+                  </ul>
+                {{/if}}
+                {{#if secondaryOutcomes.length}}
+                  <p class="mb-1"><strong>Secondary Endpoints:</strong></p>
+                  <ul>
+                    {{#each secondaryOutcomes}}
+                      <li><strong>{{measure}}</strong>: {{description}} <em>({{timeFrame}})</em></li>
+                    {{/each}}
+                  </ul>
+                {{/if}}
+                {{#if eligibilityCriteria}}
+                  <p class="mb-1"><strong>Eligibility Criteria:</strong></p>
+                  <pre style="white-space: pre-wrap; background: #f8f9fa; border-radius: 6px; padding: 8px;">{{eligibilityCriteria}}</pre>
+                {{/if}}
+                {{#if locations.length}}
+                  <div class="accordion mt-3" id="accordion-{{@index}}">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="heading-{{@index}}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{@index}}" aria-expanded="false" aria-controls="collapse-{{@index}}">
+                          Show Trial Sites ({{locations.length}})
+                        </button>
+                      </h2>
+                      <div id="collapse-{{@index}}" class="accordion-collapse collapse" aria-labelledby="heading-{{@index}}" data-bs-parent="#accordion-{{@index}}">
+                        <div class="accordion-body">
+                          <ul>
+                            {{#each locations}}
+                              <li><strong>{{facility}}</strong> ({{status}}) - {{city}}, {{state}}, {{country}}</li>
+                            {{/each}}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {{/if}}
+              </div>
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    {{else}}
+      <div class="alert alert-warning" role="alert">No clinical trials found for "{{searchTerm}}"</div>
+    {{/if}}
+    <a href="/" class="btn btn-secondary mt-3">Back to Search</a>
+  </div>
+</div>
+<script>
+// Collect unique statuses and phases for dropdowns
+(function() {
+  const cards = Array.from(document.querySelectorAll('.trial-card'));
+  const statusSet = new Set();
+  const phaseSet = new Set();
+  cards.forEach(card => {
+    if(card.dataset.status) statusSet.add(card.dataset.status);
+    if(card.dataset.phase) card.dataset.phase.split(',').forEach(p => phaseSet.add(p.trim()));
+  });
+  const statusFilter = document.getElementById('statusFilter');
+  const phaseFilter = document.getElementById('phaseFilter');
+  const sortBySelect = document.getElementById('sortBy');
+  statusSet.forEach(status => {
+    if(status) {
+      const opt = document.createElement('option');
+      opt.value = status; opt.textContent = status;
+      statusFilter.appendChild(opt);
+    }
+  });
+  phaseSet.forEach(phase => {
+    if(phase) {
+      const opt = document.createElement('option');
+      opt.value = phase; opt.textContent = phase;
+      phaseFilter.appendChild(opt);
+    }
+  });
+
+  function filterAndSort() {
+    const status = statusFilter.value;
+    const phase = phaseFilter.value;
+    const sortBy = sortBySelect.value;
+    let filtered = cards.filter(card => {
+      let match = true;
+      if(status && card.dataset.status !== status) match = false;
+      if(phase && !(card.dataset.phase||'').split(',').map(p=>p.trim()).includes(phase)) match = false;
+      return match;
+    });
+    // Sort
+    filtered.sort((a, b) => {
+      if(sortBy === 'enrollment') {
+        return (parseInt(b.dataset.enrollment)||0) - (parseInt(a.dataset.enrollment)||0);
+      } else {
+        // Dates: try to parse as YYYY-MM-DD or fallback
+        const parseDate = d => Date.parse(d) || 0;
+        return parseDate(b.dataset[sortBy]) - parseDate(a.dataset[sortBy]);
+      }
+    });
+    // Hide all, show filtered in order
+    cards.forEach(card => card.classList.add('d-none'));
+    const grid = document.getElementById('trialsGrid');
+    filtered.forEach(card => grid.appendChild(card));
+    filtered.forEach(card => card.classList.remove('d-none'));
+  }
+  statusFilter.addEventListener('change', filterAndSort);
+  phaseFilter.addEventListener('change', filterAndSort);
+  sortBySelect.addEventListener('change', filterAndSort);
+  // Initial call to show all
+  filterAndSort();
+})();
+</script>

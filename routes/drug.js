@@ -2,6 +2,8 @@ const express = require('express');
 
 const router = express.Router();
 
+
+// Drug Route
 router.get('/', async (req, res) => {
   const drugName = req.query.name;
   if (!drugName) {

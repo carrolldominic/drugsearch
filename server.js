@@ -9,7 +9,7 @@ const app = express();
 const hbs = create({
   extname: '.hbs',
   defaultLayout: 'main',
-});
+}); 
 
 app.engine('.hbs', hbs.engine);
 app.set('view engine', '.hbs');
@@ -35,8 +35,10 @@ app.get('/about', (req, res) => {
 
 const drugRoute = require('./routes/drug');
 const literatureRoute = require('./routes/literature');
+const clinicalTrialsRoute = require('./routes/clinicaltrials');
 app.use('/drug', drugRoute);
 app.use('/literature', literatureRoute);
+app.use('/clinicaltrials', clinicalTrialsRoute);
 
 
 // Export for Vercel

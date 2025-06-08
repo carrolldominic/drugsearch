@@ -60,7 +60,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Literature Download Route
+
 router.get('/download', async (req, res) => {
   const drugName = req.query.name;
   if (!drugName) {
