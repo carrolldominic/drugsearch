@@ -1,7 +1,14 @@
 const express = require('express');
+const https = require('https');
+const url = require('url');
+const handlebars = require('handlebars');
+
+// Register encodeURIComponent helper for Handlebars
+handlebars.registerHelper('encodeURIComponent', function(str) {
+  return encodeURIComponent(str);
+});
 
 const router = express.Router();
-
 
 // Drug Route
 router.get('/', async (req, res) => {
@@ -83,6 +90,29 @@ router.get('/', async (req, res) => {
       error: 'Error fetching drug information'
     });
   }
+});
+
+// Proxy PDF streaming route
+router.get('/viewpdf', (req, res) => {
+  const pdfUrl = req.query.url;
+  if (!pdfUrl) return res.status(400).send('No PDF URL provided');
+  // Basic validation to prevent misuse
+  const parsed = url.parse(pdfUrl);
+  if (!/^https?:$/.test(parsed.protocol)) return res.status(400).send('Invalid URL');
+
+  // Enhanced security: Only allow FDA.gov or NIH.gov domains (including subdomains)
+  const allowedDomains = [/\.fda\.gov$/i, /\.nih\.gov$/i];
+  const hostname = parsed.hostname || '';
+  const isAllowed = allowedDomains.some(re => re.test(hostname));
+  if (!isAllowed) return res.status(403).send('PDF proxying only allowed from FDA.gov or NIH.gov domains');
+
+  https.get(pdfUrl, (pdfRes) => {
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'inline; filename="label.pdf"');
+    pdfRes.pipe(res);
+  }).on('error', () => {
+    res.status(500).send('Error fetching PDF');
+  });
 });
 
 module.exports = router;
