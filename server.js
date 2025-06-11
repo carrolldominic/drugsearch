@@ -9,7 +9,18 @@ const app = express();
 app.engine('hbs', hbs.engine({
   extname: 'hbs',
   helpers: {
-    eq: (a, b) => a === b
+    increment: v => v + 1,
+    decrement: v => v - 1,
+    eq: (a, b) => a === b,
+    gt: (a, b) => a > b,
+    lt: (a, b) => a < b,
+    pagination: function(current, total, options) {
+      let start = Math.max(1, current - 2);
+      let end = Math.min(total, current + 2);
+      let pages = [];
+      for (let i = start; i <= end; i++) pages.push(i);
+      return pages;
+    }
   }
 }));
 app.set('view engine', 'hbs');

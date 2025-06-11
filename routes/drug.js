@@ -13,19 +13,36 @@ const router = express.Router();
 // Drug Route
 router.get('/', async (req, res) => {
   const drugName = req.query.name;
-  if (!drugName) {
+  const manufacturer = req.query.manufacturer;
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = 20;
+  const skip = (page - 1) * limit;
+
+  if (!drugName && !manufacturer) {
     return res.render('home', {
       title: 'Drug and Literature Search',
-      error: 'Please enter a drug name'
+      error: 'Please enter a drug name or manufacturer'
     });
   }
 
   try {
-    const searchTerm = `${encodeURIComponent(drugName)}*`;
-    const fdaResponse = await fetch(
-      `https://api.fda.gov/drug/label.json?search=openfda.brand_name:${searchTerm}+openfda.generic_name:${searchTerm}&limit=20`
-    );
+    let apiUrl = '';
+    if (drugName && manufacturer) {
+      // Search by both drug name and manufacturer
+      apiUrl = `https://api.fda.gov/drug/label.json?search=openfda.brand_name:"${encodeURIComponent(drugName)}"+openfda.manufacturer_name:"${encodeURIComponent(manufacturer)}"&limit=${limit}&skip=${skip}`;
+    } else if (drugName) {
+      // Search by drug name only
+      apiUrl = `https://api.fda.gov/drug/label.json?search=openfda.brand_name:"${encodeURIComponent(drugName)}"+openfda.generic_name:"${encodeURIComponent(drugName)}"&limit=${limit}&skip=${skip}`;
+    } else if (manufacturer) {
+      // Search by manufacturer only
+      apiUrl = `https://api.fda.gov/drug/label.json?search=openfda.manufacturer_name:"${encodeURIComponent(manufacturer)}"&limit=${limit}&skip=${skip}`;
+    }
+
+    const fdaResponse = await fetch(apiUrl);
     const fdaData = await fdaResponse.json();
+
+    let total = fdaData.meta?.results?.total || 0;
+    let pageCount = Math.ceil(total / limit);
 
     if (fdaData.results && fdaData.results.length > 0) {
       const drugs = await Promise.all(fdaData.results.map(async (drug) => {
@@ -36,10 +53,12 @@ router.get('/', async (req, res) => {
           moa: drug.openfda?.pharm_class_moa?.[0] || 'N/A',
           manufacturer: drug.openfda?.manufacturer_name?.[0] || 'N/A',
           indications: drug.indications_and_usage?.[0] || 'N/A',
-          labelLink: drug.openfda?.spl_set_id?.[0] ? 
-            `https://nctr-crs.fda.gov/fdalabel/services/spl/set-ids/${drug.openfda.spl_set_id[0]}/spl-doc` : '',
-          pdfLink: drug.openfda?.spl_set_id?.[0] ? 
-            `https://dailymed.nlm.nih.gov/dailymed/downloadpdffile.cfm?setId=${drug.openfda.spl_set_id[0]}` : '',
+          labelLink: drug.openfda?.spl_set_id?.[0]
+            ? `https://nctr-crs.fda.gov/fdalabel/services/spl/set-ids/${drug.openfda.spl_set_id[0]}/spl-doc`
+            : '',
+          pdfLink: drug.openfda?.spl_set_id?.[0]
+            ? `https://dailymed.nlm.nih.gov/dailymed/downloadpdffile.cfm?setId=${drug.openfda.spl_set_id[0]}`
+            : '',
           pubchem: {}
         };
 
@@ -73,9 +92,14 @@ router.get('/', async (req, res) => {
       }));
 
       res.render('drug', {
-        title: `Drug Results for ${drugName}`,
+        title: `Drug Results for ${drugName || manufacturer}`,
         drugs,
-        searchTerm: drugName
+        searchTerm: drugName || manufacturer,
+        page,
+        pageCount,
+        total,
+        drugName,
+        manufacturer
       });
     } else {
       res.render('home', {

@@ -37,6 +37,11 @@
                data-status="{{status}}" data-phase="{{phases}}" data-startdate="{{startDate}}" data-completiondate="{{completionDate}}" data-enrollment="{{enrollment}}">
             <div class="card shadow-sm mb-4 w-100" style="border-radius: 12px; max-height: 600px; display: flex; flex-direction: column;">
               <div class="card-body overflow-auto" style="flex: 1 1 auto; min-height: 0;">
+                {{#if companyName}}
+                  <div class="mb-2">
+                    <span class="badge bg-info text-dark">{{companyName}}</span>
+                  </div>
+                {{/if}}
                 <h4 class="card-title mb-2 text-info">{{title}}</h4>
                 <div class="mb-2">
                   <span class="badge bg-secondary me-2">NCT: {{nctId}}</span>
@@ -111,6 +116,26 @@
     {{else}}
       <div class="alert alert-warning" role="alert">No clinical trials found for "{{searchTerm}}"</div>
     {{/if}}
+
+    <nav aria-label="Page navigation" class="mt-4">
+      <ul class="pagination justify-content-center">
+        {{#if prevPageToken}}
+          <li class="page-item">
+            <a class="page-link" href="?name={{encodeURIComponent searchTerm}}">First</a>
+          </li>
+        {{/if}}
+        {{#if prevPageToken}}
+          <li class="page-item">
+            <a class="page-link" href="javascript:history.back()">Back</a>
+          </li>
+        {{/if}}
+        {{#if nextPageToken}}
+          <li class="page-item">
+            <a class="page-link" href="?name={{encodeURIComponent searchTerm}}&pageToken={{encodeURIComponent nextPageToken}}">Next</a>
+          </li>
+        {{/if}}
+      </ul>
+    </nav>
     <a href="/" class="btn btn-secondary mt-3">Back to Search</a>
   </div>
 </div>

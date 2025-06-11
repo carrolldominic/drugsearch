@@ -88,6 +88,40 @@
   </div>
 </div>
 
+{{#if pageCount}}
+  <nav aria-label="Drug results pages" class="mt-4">
+    <ul class="pagination justify-content-center">
+      {{#if (gt page 1)}}
+        <li class="page-item">
+          <a class="page-link"
+             href="/drug{{#if drugName}}?name={{drugName}}{{#if manufacturer}}&manufacturer={{manufacturer}}{{/if}}&page={{decrement page}}{{else if manufacturer}}?manufacturer={{manufacturer}}&page={{decrement page}}{{else}}?page={{decrement page}}{{/if}}"
+             aria-label="Previous">
+            &laquo; Prev
+          </a>
+        </li>
+      {{/if}}
+      {{#each (pagination page pageCount)}}
+        <li class="page-item {{#if (eq this ../page)}}active{{/if}}">
+          <a class="page-link"
+             href="/drug{{#if ../drugName}}?name={{../drugName}}{{#if ../manufacturer}}&manufacturer={{../manufacturer}}{{/if}}&page={{this}}{{else if ../manufacturer}}?manufacturer={{../manufacturer}}&page={{this}}{{else}}?page={{this}}{{/if}}">
+            {{this}}
+          </a>
+        </li>
+      {{/each}}
+      {{#if (lt page pageCount)}}
+        <li class="page-item">
+          <a class="page-link"
+             href="/drug{{#if drugName}}?name={{drugName}}{{#if manufacturer}}&manufacturer={{manufacturer}}{{/if}}&page={{increment page}}{{else if manufacturer}}?manufacturer={{manufacturer}}&page={{increment page}}{{else}}?page={{increment page}}{{/if}}"
+             aria-label="Next">
+            Next &raquo;
+          </a>
+        </li>
+      {{/if}}
+    </ul>
+    <div class="text-center text-muted mt-2">Page {{page}} of {{pageCount}} ({{total}} results)</div>
+  </nav>
+{{/if}}
+
 
 
 <script>

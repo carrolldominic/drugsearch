@@ -11,19 +11,17 @@
         <input type="text" id="drugName" name="name" class="form-control me-2" placeholder="Enter drug name or indication (e.g., Lipitor, atorvastatin)" required>
         <button type="submit" class="btn btn-primary">Search Drugs</button>
       </form>
+      <form id="drugSearchForm2" action="/drug" method="GET" class="d-flex mb-3">
+        <input type="text" id="manufacturer" name="manufacturer" class="form-control me-2" placeholder="Enter manufacturer name (e.g., Pfizer)" required>
+        <button type="submit" class="btn btn-primary">Search Drugs</button>
+      </form>
     </div>
+    
     <div class="card shadow-sm p-4 mb-4">
       <h3 class="text-center mb-3">Search Clinical Trials</h3>
       <form id="clinicalTrialsSearchForm" action="/clinicaltrials" method="GET" class="d-flex mb-3">
         <input type="text" id="trialName" name="name" class="form-control me-2" placeholder="Enter drug, disease, or condition (e.g., pembrolizumab, diabetes)" required>
         <button type="submit" class="btn btn-success">Search Trials</button>
-      </form>
-    </div>
-    <div class="card shadow-sm p-4 mb-4">
-      <h3 class="text-center mb-3">Search Medical Literature</h3>
-      <form id="literatureSearchForm" action="/literature" method="GET" class="d-flex mb-3">
-        <input type="text" id="literatureName" name="name" class="form-control me-2" placeholder="Enter search term (e.g., breast cancer treatment paradigm)" required>
-        <button type="submit" class="btn btn-info text-white">Search Literature</button>
       </form>
     </div>
   </div>
