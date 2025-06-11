@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   const drugName = req.query.name;
   const pageToken = req.query.pageToken || '';
-  const pageSize = 10;
+  const pageSize = 50;
 
   if (!drugName) {
     return res.render('home', {
