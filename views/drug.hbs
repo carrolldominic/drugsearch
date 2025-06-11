@@ -64,7 +64,11 @@
                     </ul>
                     {{#if pubchem.imageUrl}}
                       <div class="text-center mb-2">
-                        <img src="{{pubchem.imageUrl}}" alt="Molecular structure of {{genericName}}" style="max-width: 120px;">
+                        <img src="{{pubchem.imageUrl}}" alt="Molecular structure of {{genericName}}" style="max-width: 120px; cursor: zoom-in;" class="mol-img" data-img="{{pubchem.imageUrl}}">
+                      </div>
+                      <div id="molModal" class="modal" tabindex="-1" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); align-items:center; justify-content:center;">
+                        <span id="molModalClose" style="position:absolute;top:30px;right:50px;font-size:2.5rem;color:#fff;cursor:pointer;">&times;</span>
+                        <img id="molModalImg" src="" style="max-width:90vw;max-height:90vh;box-shadow:0 2px 16px #222;border-radius:8px;">
                       </div>
                     {{else}}
                       <p class="text-muted">No molecular structure image available</p>
@@ -194,6 +198,29 @@ $(document).ready(function () {
       console.warn("Error evaluating med chem rules:", e);
     }
   });
+
+  // Molecular structure zoom
+  document.querySelectorAll('.mol-img').forEach(function(img) {
+    img.addEventListener('click', function() {
+      var modal = document.getElementById('molModal');
+      var modalImg = document.getElementById('molModalImg');
+      modalImg.src = this.dataset.img;
+      modal.style.display = 'flex';
+    });
+  });
+  var modal = document.getElementById('molModal');
+  if (modal) {
+    document.getElementById('molModalClose').onclick = function() {
+      modal.style.display = 'none';
+      document.getElementById('molModalImg').src = '';
+    };
+    modal.onclick = function(e) {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+        document.getElementById('molModalImg').src = '';
+      }
+    };
+  }
 });
 </script>
 
