@@ -1,0 +1,48 @@
+{{!-- Compound search results --}}
+<div class="container mt-4">
+  <h2>Compound Search Results for "{{query}}"</h2>
+  <form class="mb-3" method="get" action="/compound/search">
+    <div class="input-group">
+      <input type="text" class="form-control" name="name" value="{{query}}" placeholder="Search compounds by name...">
+      <button class="btn btn-primary" type="submit">Search</button>
+    </div>
+  </form>
+  {{#if compounds.length}}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      {{#each compounds}}
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title mb-2">{{name}}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">{{substanceClass}}</h6>
+            <ul class="list-group list-group-flush mb-3">
+              <li class="list-group-item"><strong>Status:</strong>
+                {{#if ../facetData.Development_Status.length}}
+                  <span class="badge bg-info text-dark">{{../facetData.Development_Status.[0]}}</span>
+                {{else}}
+                  <span class="text-muted">Unknown</span>
+                {{/if}}
+              </li>
+              <li class="list-group-item"><strong>Target:</strong>
+                {{#if targets.length}}
+                  {{#each targets}}
+                    <span class="badge bg-info text-dark">{{this}}</span>
+                  {{/each}}
+                {{else}}
+                  <span class="text-muted">Unknown</span>
+                {{/if}}
+              </li>
+            </ul>
+            <div>
+              <a href="/clinicaltrials?name={{encodeURIComponent name}}" class="btn btn-sm btn-outline-primary mb-1">Clinical Trials</a>
+              <a href="/literature?name={{encodeURIComponent name}}" class="btn btn-sm btn-outline-success mb-1">Literature</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  {{else}}
+    <div class="alert alert-warning mt-4">No compounds found for this query.</div>
+  {{/if}}
+</div>

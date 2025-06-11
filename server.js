@@ -1,18 +1,18 @@
 const express = require('express');
-const { create } = require('express-handlebars');
 const fetch = require('node-fetch');
 const path = require('path');
+const hbs = require('express-handlebars');
 
 const app = express();
-//test
-// Configure Handlebars
-const hbs = create({
-  extname: '.hbs',
-  defaultLayout: 'main',
-}); 
 
-app.engine('.hbs', hbs.engine);
-app.set('view engine', '.hbs');
+// Configure Handlebars
+app.engine('hbs', hbs.engine({
+  extname: 'hbs',
+  helpers: {
+    eq: (a, b) => a === b
+  }
+}));
+app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views')); 
 app.use(express.static(path.join(__dirname, 'public'))); 
 
@@ -36,10 +36,14 @@ app.get('/about', (req, res) => {
 const drugRoute = require('./routes/drug');
 const literatureRoute = require('./routes/literature');
 const clinicalTrialsRoute = require('./routes/clinicaltrials');
+const compoundRoute = require('./routes/compound'); // Add this line
+const patentRoute = require('./routes/patent');
+
 app.use('/drug', drugRoute);
 app.use('/literature', literatureRoute);
 app.use('/clinicaltrials', clinicalTrialsRoute);
-
+app.use('/compound', compoundRoute); // Add this line
+app.use('/patent', patentRoute);
 
 // Export for Vercel
 module.exports = app;

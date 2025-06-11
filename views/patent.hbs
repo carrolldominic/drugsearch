@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{title}}</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; background: #f9f9f9; }
+    h1 { color: #2c3e50; }
+    .error { color: #c0392b; margin-bottom: 1em; }
+    table { border-collapse: collapse; width: 100%; background: #fff; box-shadow: 0 2px 8px #eee; }
+    th, td { padding: 0.75em 1em; border-bottom: 1px solid #eee; }
+    th { background: #f1f1f1; color: #34495e; cursor: pointer; }
+    tr:hover { background: #f6faff; }
+    .no-results { color: #888; margin-top: 2em; }
+    a.patent-link { color: #2980b9; text-decoration: none; }
+    a.patent-link:hover { text-decoration: underline; }
+    .applno-list { margin-bottom: 1em; color: #555; }
+    .asc::after { content: " ▲"; }
+    .desc::after { content: " ▼"; }
+    .badge { display: inline-block; padding: 0.2em 0.6em; border-radius: 0.5em; font-size: 0.85em; margin-left: 0.3em; color: #fff; }
+    .badge.ds { background: #27ae60; }
+    .badge.dp { background: #2980b9; }
+    .filter-bar { margin-bottom: 1em; }
+    .filter-bar label { margin-right: 0.5em; }
+    .filter-bar select, .filter-bar input { margin-right: 1em; padding: 0.3em 0.5em; }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Sorting
+      function sortTable(idx, asc) {
+        const table = document.querySelector('table');
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        rows.sort((a, b) => {
+          const aText = a.children[idx].innerText.trim();
+          const bText = b.children[idx].innerText.trim();
+          if (!isNaN(Date.parse(aText)) && !isNaN(Date.parse(bText))) {
+            return asc ? new Date(aText) - new Date(bText) : new Date(bText) - new Date(aText);
+          }
+          if (!isNaN(aText) && !isNaN(bText)) {
+            return asc ? aText - bText : bText - aText;
+          }
+          return asc ? aText.localeCompare(bText) : bText.localeCompare(aText);
+        });
+        tbody.innerHTML = '';
+        rows.forEach(row => tbody.appendChild(row));
+      }
+
+      document.querySelectorAll('th.sortable').forEach(function(header, idx) {
+        header.addEventListener('click', function() {
+          const asc = !header.classList.contains('asc');
+          sortTable(idx, asc);
+          document.querySelectorAll('th').forEach(th => th.classList.remove('asc', 'desc'));
+          header.classList.add(asc ? 'asc' : 'desc');
+        });
+      });
+
+      // Filter by text
+      document.getElementById('patent-filter').addEventListener('input', function() {
+        const val = this.value.trim().toLowerCase();
+        document.querySelectorAll('tbody tr').forEach(row => {
+          row.style.display = Array.from(row.children).some(td =>
+            td.innerText.toLowerCase().includes(val)
+          ) ? '' : 'none';
+        });
+      });
+
+      // Filter by badge
+      document.getElementById('badge-filter').addEventListener('change', function() {
+        const val = this.value;
+        document.querySelectorAll('tbody tr').forEach(row => {
+          if (val === 'none') {
+            row.style.display = '';
+          } else if (val === 'ds') {
+            row.style.display = row.querySelector('.badge.ds') ? '' : 'none';
+          } else if (val === 'dp') {
+            row.style.display = row.querySelector('.badge.dp') ? '' : 'none';
+          }
+        });
+      });
+    });
+  </script>
+</head>
+<body>
+  <h1>Patents for {{searchTerm}}</h1>
+  {{#if error}}
+    <div class="error">{{error}}</div>
+  {{/if}}
+
+  {{#if applNos.length}}
+    <div class="applno-list">
+      <strong>Application Number(s):</strong>
+      {{#each applNos}}
+        <span>{{this}}</span>{{#unless @last}}, {{/unless}}
+      {{/each}}
+    </div>
+  {{/if}}
+
+  {{#if patents.length}}
+    <div class="filter-bar">
+      <input type="text" id="patent-filter" placeholder="Filter patents...">
+      <label for="badge-filter">Show:</label>
+      <select id="badge-filter">
+        <option value="none">All</option>
+        <option value="ds">Drug Substance</option>
+        <option value="dp">Drug Product</option>
+      </select>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th class="sortable">Patent Number</th>
+          <th class="sortable">Expiration Date</th>
+          <th class="sortable">Patent Use Code</th>
+          <th class="sortable">Submission Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each patents}}
+          <tr>
+            <td>
+              <a class="patent-link" href="https://patents.google.com/patent/US{{Patent_No}}" target="_blank" rel="noopener">
+                {{Patent_No}}
+              </a>
+              {{#if (eq Drug_Substance_Flag "Y")}}<span class="badge ds">Drug Substance</span>{{/if}}
+              {{#if (eq Drug_Product_Flag "Y")}}<span class="badge dp">Drug Product</span>{{/if}}
+            </td>
+            <td>{{Patent_Expire_Date_Text}}</td>
+            <td>{{Patent_Use_Code}}</td>
+            <td>{{Submission_Date}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    <div class="no-results">No patents found for this drug.</div>
+  {{/if}}
+  <div style="margin-top:2em; color:#888; font-size:0.95em; text-align:center;">
+    <strong>Disclaimer:</strong> Not all drugs covered; No biologics; Only small molecule Drug Products with Therapeutic Equivalence Evaluations.
+  </div>
+</body>
+</html>
