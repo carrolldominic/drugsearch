@@ -65,7 +65,7 @@ router.get('/', async (req, res) => {
         if (drugInfo.genericName !== 'N/A') {
           try {
             const pubchemResponse = await fetch(
-              `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(drugInfo.ingredient)}/JSON`
+              `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(drugInfo.genericName)}/JSON`
             );
             if (pubchemResponse.ok) {
               const pubchemData = await pubchemResponse.json();
@@ -78,7 +78,8 @@ router.get('/', async (req, res) => {
                 hydrogenBondDonors: props.find(prop => prop.urn.label === 'Count' && prop.urn.name === 'Hydrogen Bond Donor')?.value?.ival || 'N/A',
                 hydrogenBondAcceptors: props.find(prop => prop.urn.label === 'Count' && prop.urn.name === 'Hydrogen Bond Acceptor')?.value?.ival || 'N/A',
                 rotatableBonds: props.find(prop => prop.urn.label === 'Count' && prop.urn.name === 'Rotatable Bond')?.value?.ival || 'N/A',
-                imageUrl: cid ? `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/PNG?record_type=2d&image_size=large` : 'N/A'
+                imageUrl: cid ? `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/PNG?record_type=2d&image_size=large` : 'N/A',
+                pubchemLink: cid ? `https://pubchem.ncbi.nlm.nih.gov/compound/${cid}` : '#'
               };
             } else {
               drugInfo.pubchem = { error: 'Unable to fetch chemistry data' };
